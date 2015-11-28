@@ -1,1 +1,4 @@
+notifications:
+    slack: jYes2vSZz9TRWGQTjzoOaAFU
+
 language: android
