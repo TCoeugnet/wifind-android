@@ -1,4 +1,4 @@
-package fr.ig2i.wifind;
+package fr.ig2i.wifind.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,12 +16,16 @@ import android.widget.ListView;
 
 import java.util.List;
 
+import fr.ig2i.wifind.adapters.ScanListAdapter;
+import fr.ig2i.wifind.objects.AccessPoint;
+import fr.ig2i.wifind.objects.Mesure;
+
 
 public class ProbeWifiActivity extends ActionBarActivity {
 
     private ListView listScans = null;
 
-    private ScanResult[] results = null;
+    private ScanListAdapter adapter = null;
 
     public class ScanTask extends AsyncTask<WifiManager, Void, Void> {
         @Override
@@ -30,24 +34,32 @@ public class ProbeWifiActivity extends ActionBarActivity {
             int state = 0;
             WifiManager manager;
 
-            //TODO Faire une classe spéciale pour les ScanResult
+            Log.i("TEST", "1");
 
             if(managers.length == 1) {
+                Log.i("TEST", "2");
                 manager = managers[0];
                 if(manager.isScanAlwaysAvailable()) {
+                    Log.i("TEST", "3");
                     if(manager.startScan()) {
+                        Log.i("TEST", "4");
                         registerReceiver(new BroadcastReceiver() {
                             @Override
                             public void onReceive(Context context, Intent intent) {
                                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                                 final List<ScanResult> results= wifiManager.getScanResults();//list of access points from the last scan
-                                ProbeWifiActivity.this.results = new ScanResult[results.size()];
+                                Mesure[] mesures = new Mesure[results.size()];
                                 int i = 0;
+                                Log.i("TEST", "5");
+
                                 for(ScanResult result : results) {
-                                    result.level = WifiManager.calculateSignalLevel(result.level, 100);
-                                    ProbeWifiActivity.this.results[i++] = result;
+                                    Log.i("TEST", "loop");
+                                    AccessPoint AP = new AccessPoint(result.SSID, result.BSSID);
+                                    Mesure mesure = new Mesure(AP, result.level, null);
+                                    mesures[i++] = mesure;
                                 }
-                                listScans.setAdapter(new ScanListAdapter(ProbeWifiActivity.this, ProbeWifiActivity.this.results));
+
+                                adapter.setValues(mesures);
                             }
                         }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                     } else {
@@ -76,12 +88,15 @@ public class ProbeWifiActivity extends ActionBarActivity {
         setContentView(R.layout.activity_probe_wifi);
 
         //
+        Mesure[] mock = new Mesure[1];
+        mock[0] = new Mesure(new AccessPoint("TOTO", "te:st"), -50, null);
 
-        ScanTask scanner = new ScanTask();
+        //ScanTask scanner = new ScanTask();
         listScans = (ListView) this.findViewById(R.id.listView);
-        //listScans.setAdapter(new ScanListAdapter(this, results));
+        adapter = new ScanListAdapter(this.getApplicationContext(), mock);
+        listScans.setAdapter(adapter);
 
-        scanner.execute((WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE));
+        //scanner.execute((WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE));
     }
 
 

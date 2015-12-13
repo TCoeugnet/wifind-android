@@ -1,4 +1,4 @@
-package fr.ig2i.wifind;
+package fr.ig2i.wifind.activities;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;

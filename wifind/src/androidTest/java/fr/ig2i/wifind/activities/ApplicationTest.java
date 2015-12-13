@@ -1,4 +1,4 @@
-package fr.ig2i.wifind;
+package fr.ig2i.wifind.activities;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
