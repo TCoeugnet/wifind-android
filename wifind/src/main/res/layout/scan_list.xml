@@ -11,7 +11,8 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="8dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textColor="#ff9f9f9f" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,7 +21,8 @@
         android:text="BSSID : "
         android:id="@+id/textView6"
         android:layout_below="@+id/textView5"
-        android:layout_alignStart="@+id/textView5" />
+        android:layout_alignStart="@+id/textView5"
+        android:textColor="#ff9f9f9f" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,7 +32,8 @@
         android:layout_marginEnd="9dp"
         android:layout_alignTop="@+id/textView5"
         android:layout_alignParentEnd="true"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:textColor="#ff9f9f9f" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -40,7 +43,8 @@
         android:id="@+id/SSID"
         android:layout_alignTop="@+id/textView5"
         android:layout_toEndOf="@+id/textView5"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:textColor="#ff363636" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -50,6 +54,7 @@
         android:id="@+id/BSSID"
         android:layout_below="@+id/SSID"
         android:layout_alignStart="@+id/SSID"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:textColor="#ff363636" />
 
 </RelativeLayout>
