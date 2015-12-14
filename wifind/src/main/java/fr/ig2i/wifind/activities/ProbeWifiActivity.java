@@ -25,6 +25,8 @@ public class ProbeWifiActivity extends ActionBarActivity {
 
     private ListView listScans = null;
 
+    private Mesure[] mesures = new Mesure[0];
+
     private ScanListAdapter adapter = null;
 
     public class ScanTask extends AsyncTask<WifiManager, Void, Void> {
@@ -48,18 +50,18 @@ public class ProbeWifiActivity extends ActionBarActivity {
                             public void onReceive(Context context, Intent intent) {
                                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                                 final List<ScanResult> results= wifiManager.getScanResults();//list of access points from the last scan
-                                Mesure[] mesures = new Mesure[results.size()];
+                                ProbeWifiActivity.this.mesures = new Mesure[results.size()];
                                 int i = 0;
-                                Log.i("TEST", "5");
+                                Log.i("TEST", "5 : " + results.size());
 
                                 for(ScanResult result : results) {
                                     Log.i("TEST", "loop");
                                     AccessPoint AP = new AccessPoint(result.SSID, result.BSSID);
                                     Mesure mesure = new Mesure(AP, result.level, null);
-                                    mesures[i++] = mesure;
+                                    ProbeWifiActivity.this.mesures[i++] = mesure;
                                 }
 
-                                adapter.setValues(mesures);
+                                listScans.setAdapter(new ScanListAdapter(ProbeWifiActivity.this, ProbeWifiActivity.this.mesures));
                             }
                         }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                     } else {
@@ -91,12 +93,12 @@ public class ProbeWifiActivity extends ActionBarActivity {
         Mesure[] mock = new Mesure[1];
         mock[0] = new Mesure(new AccessPoint("TOTO", "te:st"), -50, null);
 
-        //ScanTask scanner = new ScanTask();
+        ScanTask scanner = new ScanTask();
         listScans = (ListView) this.findViewById(R.id.listView);
         adapter = new ScanListAdapter(this.getApplicationContext(), mock);
         listScans.setAdapter(adapter);
 
-        //scanner.execute((WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE));
+        scanner.execute((WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE));
     }
 
 
