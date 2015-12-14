@@ -18,4 +18,15 @@
         android:layout_centerHorizontal="true"
         android:onClick="onClickScanner" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vue empreinte"
+        android:id="@+id/button2"
+        android:onClick="onClickEmpreinte"
+        android:layout_marginTop="28dp"
+        android:layout_below="@+id/button"
+        android:layout_centerHorizontal="true"
+        android:nestedScrollingEnabled="false" />
+
 </RelativeLayout>

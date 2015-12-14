@@ -1,36 +1,25 @@
 package fr.ig2i.wifind.activities;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
+import fr.ig2i.wifind.activities.R;
 
-public class HomeActivity extends ActionBarActivity {
+public class EmpreinteActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-    }
-
-    public void onClickScanner(View view) {
-        Intent intent = new Intent(this, ProbeWifiActivity.class);
-        this.startActivity(intent);
-    }
-
-    public void onClickEmpreinte(View view) {
-        Intent intent = new Intent(this, EmpreinteActivity.class);
-        this.startActivity(intent);
+        setContentView(R.layout.activity_empreinte);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
+        getMenuInflater().inflate(R.menu.menu_empreinte, menu);
         return true;
     }
 
