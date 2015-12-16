@@ -17,6 +17,7 @@ import fr.ig2i.wifind.receivers.ScanReceiver;
 import fr.ig2i.wifind.adapters.ScanListAdapter;
 import fr.ig2i.wifind.objects.Mesure;
 
+//TODO Mettre à jour la classe avec WifiScanner
 
 public class ProbeWifiActivity extends ActionBarActivity implements DataChangeListener {
 
