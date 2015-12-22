@@ -57,10 +57,11 @@
         android:text="Enregistrer"
         android:id="@+id/button5"
         android:layout_alignBottom="@+id/button3"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:onClick="onClickEnregistrer" />
 
 
-    <ImageView
+    <fr.ig2i.wifind.views.DrawableImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/imageView"

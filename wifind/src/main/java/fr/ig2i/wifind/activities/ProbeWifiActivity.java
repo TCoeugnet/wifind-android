@@ -16,8 +16,7 @@ import fr.ig2i.wifind.listeners.DataChangeListener;
 import fr.ig2i.wifind.receivers.ScanReceiver;
 import fr.ig2i.wifind.adapters.ScanListAdapter;
 import fr.ig2i.wifind.objects.Mesure;
-
-//TODO Mettre à jour la classe avec WifiScanner
+import fr.ig2i.wifind.wifi.WifiScanner;
 
 public class ProbeWifiActivity extends ActionBarActivity implements DataChangeListener {
 
@@ -32,14 +31,9 @@ public class ProbeWifiActivity extends ActionBarActivity implements DataChangeLi
     private ScanListAdapter adapter = null;
 
     /**
-     * Receiver, called when Wifi scan is complete
+     * Wifi Scanner : gives ability to scan wifi
      */
-    private ScanReceiver receiver = null;
-
-    /**
-     * Wifi Manager : gives access to scanning functions
-     */
-    private WifiManager manager;
+    private WifiScanner scanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,26 +42,16 @@ public class ProbeWifiActivity extends ActionBarActivity implements DataChangeLi
 
         listScans   = (ListView) this.findViewById(R.id.listView);
         adapter     = new ScanListAdapter(this.getApplicationContext(), new ArrayList<Mesure>(1));
-        manager     = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
         listScans.setAdapter(adapter);
 
-        startScanner();
-    }
-
-    private void startScanner() {
-        this.receiver = new ScanReceiver(manager, this);
-
-        this.registerReceiver(
-                receiver,
-                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-        );
-        this.manager.startScan();
+        this.scanner = new WifiScanner(this, this);
+        this.scanner.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        this.unregisterReceiver(this.receiver);
+        this.scanner.pause();
     }
 
     @Override
@@ -96,6 +80,6 @@ public class ProbeWifiActivity extends ActionBarActivity implements DataChangeLi
     public void onDataChange(Object data) {
         adapter.setValues((List<Mesure>) data);
         adapter.sortValues(true); //Tri décroissant
-        manager.startScan(); //On démarre un nouveau scan
+        this.scanner.resume();
     }
 }

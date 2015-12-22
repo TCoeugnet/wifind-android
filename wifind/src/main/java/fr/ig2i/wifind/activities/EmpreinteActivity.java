@@ -19,8 +19,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import fr.ig2i.wifind.listeners.DataChangeListener;
+import fr.ig2i.wifind.listeners.MapScanOnTouchListener;
 import fr.ig2i.wifind.listeners.ScrollableOnTouchListener;
 import fr.ig2i.wifind.objects.Mesure;
+import fr.ig2i.wifind.views.DrawableImageView;
 import fr.ig2i.wifind.wifi.WifiScanner;
 
 public class EmpreinteActivity extends Activity implements DataChangeListener{
@@ -30,19 +32,26 @@ public class EmpreinteActivity extends Activity implements DataChangeListener{
      */
     private WifiScanner scanner;
 
-    private List<String> BSSID_OK = new ArrayList<>(Arrays.asList(new String[] { "ECLille", "ECLille-Captif", "eduroam" }));
+    //private List<String> BSSID_OK = new ArrayList<>(Arrays.asList(new String[] { "ECLille", "ECLille-Captif", "eduroam" }));
+    private List<String> BSSID_OK = new ArrayList<>(Arrays.asList(new String[] { "Livebox-1260" }));
 
-    private ImageView imageView;
+    private DrawableImageView imageView;
 
     private ScrollableOnTouchListener listener;
+
+    private boolean measuring = false;
+
+    private List<Mesure> mesures;
+
+    private int measureCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_empreinte);
 
-        imageView = (ImageView) this.findViewById(R.id.imageView);
-        imageView.setOnTouchListener(listener = new ScrollableOnTouchListener());
+        imageView = (DrawableImageView) this.findViewById(R.id.imageView);
+        imageView.setOnTouchListener(listener = new MapScanOnTouchListener());
 
         this.scanner = new WifiScanner(this, this);
         this.scanner.start();
@@ -64,6 +73,20 @@ public class EmpreinteActivity extends Activity implements DataChangeListener{
     public void onClickPosition(View view) {
         this.listener.toggle();
         Toast.makeText(this, this.listener.isLocked() ? "Vérouillé" : "Dévérouillé", Toast.LENGTH_SHORT).show();
+
+        if(this.listener.isLocked()) {
+            this.imageView.unlockPin();
+        } else {
+            this.imageView.lockPin();
+        }
+    }
+
+    public void onClickEnregistrer(View view) {
+        PointF pinPosition = this.imageView.getPinPosition();
+        mesures = new ArrayList<Mesure>();
+
+        measureCount = 0;
+        measuring = true;
     }
 
     @Override
@@ -97,6 +120,18 @@ public class EmpreinteActivity extends Activity implements DataChangeListener{
             Mesure mesure = (Mesure)i.next();
             if(this.BSSID_OK.contains(mesure.getAp().getSSID())) {
                 filtre.add(mesure);
+                if(this.measuring) {
+                    this.mesures.add(mesure);
+                }
+            }
+        }
+
+        if(measuring) {
+            measureCount++;
+
+            if(measureCount == 1) {
+                measuring = false;
+                Toast.makeText(this, "Mesure terminée.", Toast.LENGTH_SHORT).show();
             }
         }
 
