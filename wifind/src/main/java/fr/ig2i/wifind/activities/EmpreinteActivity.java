@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -13,11 +14,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import fr.ig2i.wifind.api.WiFindAPI;
+import fr.ig2i.wifind.listeners.APIResponseListener;
 import fr.ig2i.wifind.listeners.DataChangeListener;
 import fr.ig2i.wifind.listeners.MapScanOnTouchListener;
 import fr.ig2i.wifind.listeners.ScrollableOnTouchListener;
@@ -25,7 +30,7 @@ import fr.ig2i.wifind.objects.Mesure;
 import fr.ig2i.wifind.views.DrawableImageView;
 import fr.ig2i.wifind.wifi.WifiScanner;
 
-public class EmpreinteActivity extends Activity implements DataChangeListener{
+public class EmpreinteActivity extends Activity implements DataChangeListener, APIResponseListener{
 
     /**
      * Wifi Scanner : gives ability to scan wifi
@@ -141,4 +146,14 @@ public class EmpreinteActivity extends Activity implements DataChangeListener{
         this.scanner.resume();
     }
 
+    public void onClickAPICall(View view) {
+        WiFindAPI api = new WiFindAPI();
+        Log.e("API", "Start");
+        api.mock(this);
+    }
+
+    @Override
+    public void onResponse(JSONObject res) {
+        Log.e("API", res.toString());
+    }
 }
