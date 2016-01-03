@@ -2,6 +2,7 @@ package fr.ig2i.wifind.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,16 +22,19 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import fr.ig2i.wifind.api.ImageLoader;
 import fr.ig2i.wifind.api.WiFindAPI;
 import fr.ig2i.wifind.listeners.APIResponseListener;
 import fr.ig2i.wifind.listeners.DataChangeListener;
+import fr.ig2i.wifind.listeners.LoadImageListener;
 import fr.ig2i.wifind.listeners.MapScanOnTouchListener;
 import fr.ig2i.wifind.listeners.ScrollableOnTouchListener;
+import fr.ig2i.wifind.objects.Image;
 import fr.ig2i.wifind.objects.Mesure;
 import fr.ig2i.wifind.views.DrawableImageView;
 import fr.ig2i.wifind.wifi.WifiScanner;
 
-public class EmpreinteActivity extends Activity implements DataChangeListener, APIResponseListener{
+public class EmpreinteActivity extends Activity implements DataChangeListener, APIResponseListener, LoadImageListener{
 
     /**
      * Wifi Scanner : gives ability to scan wifi
@@ -60,6 +64,11 @@ public class EmpreinteActivity extends Activity implements DataChangeListener, A
 
         this.scanner = new WifiScanner(this, this);
         this.scanner.start();
+
+        Image img = new Image("//a1.mzstatic.com/us/r30/Purple5/v4/5a/2e/e9/5a2ee9b3-8f0e-4f8b-4043-dd3e3ea29766/icon256.png", "92083A6EBCA01C236151B35C70E3C95C", "Image");
+
+        ImageLoader loader = new ImageLoader(this, this);
+        loader.asyncLoad(img);
     }
 
 
@@ -155,5 +164,10 @@ public class EmpreinteActivity extends Activity implements DataChangeListener, A
     @Override
     public void onResponse(JSONObject res) {
         Log.e("API", res.toString());
+    }
+
+    @Override
+    public void onBitmapLoaded(Image image, Bitmap bmp) {
+        this.imageView.setImageBitmap(bmp);
     }
 }

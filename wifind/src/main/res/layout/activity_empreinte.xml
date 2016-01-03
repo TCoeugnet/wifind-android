@@ -65,9 +65,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/imageView"
-        android:src="@drawable/tony_pizza"
         android:scaleType="center"
-        android:background="#ffff0800"
+        android:background="#ffffffff"
         android:layout_below="@+id/button3"
         android:layout_centerHorizontal="true"
         android:adjustViewBounds="false" />
