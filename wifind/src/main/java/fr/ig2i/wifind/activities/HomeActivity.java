@@ -1,6 +1,7 @@
 package fr.ig2i.wifind.activities;
 
 import android.content.Intent;
+import android.preference.PreferenceActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -43,6 +44,8 @@ public class HomeActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, ParametresActivity.class);
+            this.startActivity(intent);
             return true;
         }
 

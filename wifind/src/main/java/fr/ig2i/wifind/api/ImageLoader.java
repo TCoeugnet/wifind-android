@@ -7,12 +7,16 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.http.util.ByteArrayBuffer;
+
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
@@ -25,6 +29,8 @@ import fr.ig2i.wifind.objects.Image;
  * Created by Thomas on 02/01/2016.
  */
 public class ImageLoader {
+
+    //TODO : Gestion des images lourdes
 
     private class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
 
@@ -50,7 +56,7 @@ public class ImageLoader {
     private LoadImageListener listener;
 
     public static Bitmap.CompressFormat COMPRESS_FORMAT     = Bitmap.CompressFormat.PNG;
-    public static int                   COMPRESS_QUALITY    = 100;
+    public static int                   COMPRESS_QUALITY    = 50;
 
     public static String IMG_INTERNAL_NAME      = "cachedimg-%.3s-%s.%s";
     public static String IMG_INTERNAL_EXTENSION = COMPRESS_FORMAT.equals(Bitmap.CompressFormat.JPEG) ? "jpeg" : (COMPRESS_FORMAT.equals(Bitmap.CompressFormat.PNG) ? "png" : "webp");
@@ -65,18 +71,24 @@ public class ImageLoader {
     private Bitmap loadBitmap(Image image) {
 
         Bitmap bmp = null;
+        byte[] data = null;
 
         if(this.isInInternalStorage(image)) {
+            Log.d("ImageLoader", "Internal");
             bmp = this.loadFromInternalStorage(image);
         } else {
             bmp = this.loadFromURL(image);
+            Log.d("ImageLoader", "URL");
 
-            if(this.isInInternalStorage(image)) {
-                this.deleteFromInternalStorage(image);
+            if(bmp != null) {
+                if (this.isInInternalStorage(image)) {
+                    this.deleteFromInternalStorage(image); //TODO On ne viendra jamais ici
+                }
+                image.setHash(this.computeHash(image.getData()));
+
+                Log.d("ImageLoader", "Hash : " + image.getHash());
+                this.saveToInternalStorage(image, bmp);
             }
-
-            image.setHash(this.computeHash(bmp));
-            this.saveToInternalStorage(image, bmp);
         }
 
         return bmp;
@@ -89,36 +101,37 @@ public class ImageLoader {
 
     /**
      *
-     * @param bmp
+     * @param data
      * @return
      */
-    private String computeHash(Bitmap bmp) {
+    private String computeHash(byte[] data) {
 
         StringBuilder sb = new StringBuilder();
         MessageDigest md = null;
         byte[] bytes;
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        //ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-
-        bmp.compress(COMPRESS_FORMAT, COMPRESS_QUALITY, stream);
+        //mp.compress(COMPRESS_FORMAT, COMPRESS_QUALITY, stream);
 
         try {
             md = MessageDigest.getInstance(HASH_ALGORITHM);
         } catch (NoSuchAlgorithmException exc) {
         }
 
-        bytes = md.digest(stream.toByteArray());
+
+        bytes = md.digest(data);
         for (byte b : bytes) {
             sb.append(String.format("%02X", b));
         }
 
-        try {
-            stream.close();
+        /*try {
+            //stream.close();
         } catch (IOException exc){
 
-        }
+        }*/
 
-        return sb.toString().toLowerCase();
+        String result = sb.toString().toLowerCase();
+        return result;
     }
 
     /**
@@ -144,13 +157,24 @@ public class ImageLoader {
         //Chargement + sauvegarde
         Bitmap bmp = null;
         URL url = null;
+        byte[] data = new byte[4096];
+        int length = 0;
 
         try {
-            url = new URL("http:" + image.getChemin());
-            bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-            Log.d("ImageLoader", "Loaded from URL");
+            url = new URL(image.getChemin());
+            InputStream stream = url.openConnection().getInputStream();
+
+            ByteArrayBuffer buffer = new ByteArrayBuffer(4096);
+            while((length = stream.read(data, 0, data.length)) != -1) {
+                buffer.append(data, 0, length);
+            }
+            bmp = BitmapFactory.decodeByteArray(buffer.buffer(), 0, buffer.length());
+
+            image.setData(buffer.toByteArray());
+            buffer.clear();
+
         } catch (Exception exc) {
-            Log.e("ImageLoader", exc.getMessage());
+            Log.e("ImageLoader", "", exc);
         }
 
         return bmp;
@@ -163,7 +187,6 @@ public class ImageLoader {
         if(imageFile.exists()) {
             try {
                 bmp = BitmapFactory.decodeStream(new FileInputStream(imageFile));
-                Log.d("ImageLoader", "Loaded from internal storage");
             } catch (FileNotFoundException exc) {
                 Log.e("ImageLoader", "Unable to find file");
             }
@@ -185,20 +208,21 @@ public class ImageLoader {
     }
 
     private void saveToInternalStorage(Image image, Bitmap bmp) {
-        File imageFile = this.getInternalStorageFile(image.getChemin(), this.computeHash(bmp));
+        File imageFile = this.getInternalStorageFile(image.getChemin(), this.computeHash(image.getData()));
         FileOutputStream stream = null;
 
         if(!imageFile.exists()) {
-            Log.d("ImageLoader", "Saving to internal storage");
             try {
                 stream = new FileOutputStream(imageFile);
-                bmp.compress(COMPRESS_FORMAT, COMPRESS_QUALITY, stream);
+
+                stream.write(image.getData());
             } catch (FileNotFoundException exc) {
                 Log.e("ImageLoader", "File not found");
+            } catch (IOException exc) {
+                Log.e("ImageLoader", "Unable to write data");
             } finally {
                 try {
                     stream.close();
-                    Log.d("ImageLoader", "Saved to internal storage");
                 } catch (IOException exc) {
                     Log.e("ImageLoader", "Unable to close stream");
                 }

@@ -30,6 +30,7 @@ import fr.ig2i.wifind.listeners.LoadImageListener;
 import fr.ig2i.wifind.listeners.MapScanOnTouchListener;
 import fr.ig2i.wifind.listeners.ScrollableOnTouchListener;
 import fr.ig2i.wifind.objects.Image;
+import fr.ig2i.wifind.objects.JSONSerializable;
 import fr.ig2i.wifind.objects.Mesure;
 import fr.ig2i.wifind.views.DrawableImageView;
 import fr.ig2i.wifind.wifi.WifiScanner;
@@ -65,10 +66,8 @@ public class EmpreinteActivity extends Activity implements DataChangeListener, A
         this.scanner = new WifiScanner(this, this);
         this.scanner.start();
 
-        Image img = new Image("//a1.mzstatic.com/us/r30/Purple5/v4/5a/2e/e9/5a2ee9b3-8f0e-4f8b-4043-dd3e3ea29766/icon256.png", "92083A6EBCA01C236151B35C70E3C95C", "Image");
-
-        ImageLoader loader = new ImageLoader(this, this);
-        loader.asyncLoad(img);
+        WiFindAPI api = new WiFindAPI(this);
+        api.fetchImage(this);
     }
 
 
@@ -155,15 +154,11 @@ public class EmpreinteActivity extends Activity implements DataChangeListener, A
         this.scanner.resume();
     }
 
-    public void onClickAPICall(View view) {
-        WiFindAPI api = new WiFindAPI();
-        Log.e("API", "Start");
-        api.mock(this);
-    }
-
     @Override
-    public void onResponse(JSONObject res) {
-        Log.e("API", res.toString());
+    public void onResponse(JSONSerializable js) {
+        Image image = (Image) js;
+        ImageLoader loader = new ImageLoader(this, this);
+        loader.asyncLoad(image);
     }
 
     @Override

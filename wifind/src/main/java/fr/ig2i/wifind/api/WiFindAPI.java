@@ -1,22 +1,32 @@
 package fr.ig2i.wifind.api;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.text.style.LineHeightSpan;
 import android.util.Log;
 
 import org.apache.http.NameValuePair;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
 
 import fr.ig2i.wifind.listeners.APIResponseListener;
+import fr.ig2i.wifind.objects.Image;
+import fr.ig2i.wifind.objects.JSONSerializable;
 
 /**
  * Created by Thomas on 31/12/2015.
  */
 public class WiFindAPI {
 
+    private Context context;
+
     static class AsyncAPICall extends AsyncTask<Void, Void, JSONObject> {
 
+
+        private Class returnClass =  Image.class;
         private String method;
         private String URL;
         private String entity;
@@ -48,23 +58,41 @@ public class WiFindAPI {
 
         @Override
         protected void onPostExecute(JSONObject obj) {
-            listener.onResponse(obj);
+
+            try {
+                listener.onResponse((JSONSerializable) returnClass.getConstructor(JSONObject.class).newInstance(obj));
+            }catch(Exception exc) {
+                Log.e("WiFindAPI", exc.getMessage(), exc);
+            }
         }
     }
 
-    public void mock(APIResponseListener listener) {
-        AsyncAPICall task = new AsyncAPICall("post", "http://private-40524-wifindlocalisation.apiary-mock.com/localisation", null, "[\n" +
-                "    {\n" +
-                "        \"ssid\": \"ECLille\",\n" +
-                "        \"bssid\": \"00:1c:57:e0:41:7e\",\n" +
-                "        \"rssi\": 85\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"ssid\": \"ECLille\",\n" +
-                "        \"bssid\": \"00:1c:57:e0:40:9e\",\n" +
-                "        \"rssi\": 55\n" +
-                "    }\n" +
-                "]", listener);
+    public WiFindAPI(Context ctx) {
+        this.context = ctx;
+    }
+
+    public String getAPIUrl() {
+        String url = "";
+
+        switch(PreferenceManager.getDefaultSharedPreferences(this.context).getString("apiValues", "1")) {
+            case "1": //Karavan
+                url = "http://192.168.137.1:28423";
+                break;
+            case "2":
+                url = "http://wifind.no-ip.org:45763";
+                break;
+            case "3":
+                url = "localhost";
+        };
+
+        return url;
+    }
+
+    public void fetchImage(APIResponseListener listener) {
+        String url = this.getAPIUrl() + "/api/image";
+        AsyncAPICall task = new AsyncAPICall("get", url, null, null, listener);
         task.execute((Void) null);
     }
+
+
 }

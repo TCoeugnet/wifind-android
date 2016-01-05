@@ -17,6 +17,8 @@ public class ScrollableOnTouchListener implements View.OnTouchListener {
     private PointF scrollMax = new PointF(0, 0);
 
     private boolean locked = false;
+    private boolean lockedX = false;
+    private boolean lockedY = false;
 
     public ScrollableOnTouchListener() {
     }
@@ -46,10 +48,18 @@ public class ScrollableOnTouchListener implements View.OnTouchListener {
             return false;
 
         ImageView img = (ImageView) v; //On caste une fois ici plutôt qu'après
+        Drawable bitmap = img.getDrawable();
+
+        if(bitmap.getIntrinsicWidth() < img.getWidth()) {
+            lockedX = true;
+        }
+
+        if(bitmap.getIntrinsicHeight() < img.getHeight()) {
+            lockedY = true;
+        }
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
-                Drawable bitmap = img.getDrawable();
                 origine.set(event.getX(), event.getY());
                 scrollMax.set((bitmap.getIntrinsicWidth() - img.getWidth()) / 2, (bitmap.getIntrinsicHeight() - img.getHeight()) / 2);
             }
@@ -82,7 +92,7 @@ public class ScrollableOnTouchListener implements View.OnTouchListener {
                     }
                 }
 
-                img.scrollBy((int) decalage.x, (int) decalage.y); //Décalage de l'image
+                img.scrollBy(lockedX ? 0 : (int) decalage.x, lockedY ? 0 : (int) decalage.y); //Décalage de l'image
 
                 origine.set(touche);
             }
