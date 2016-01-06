@@ -1,9 +1,14 @@
 package fr.ig2i.wifind.objects;
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by Thomas on 09/12/2015.
  */
-public class AccessPoint {
+public class AccessPoint extends JSONSerializable {
 
     /**
      * SSID du réseau
@@ -36,4 +41,16 @@ public class AccessPoint {
         this.BSSID = BSSID;
     }
 
+
+    public String serialize() {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("SSID", SSID);
+            obj.put("BSSID", BSSID);
+        } catch(JSONException exc) {
+            Log.e("JsonError", "", exc);
+        }
+
+        return obj.toString();
+    }
 }

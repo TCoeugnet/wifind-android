@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -32,6 +33,7 @@ import fr.ig2i.wifind.listeners.ScrollableOnTouchListener;
 import fr.ig2i.wifind.objects.Image;
 import fr.ig2i.wifind.objects.JSONSerializable;
 import fr.ig2i.wifind.objects.Mesure;
+import fr.ig2i.wifind.objects.Position;
 import fr.ig2i.wifind.views.DrawableImageView;
 import fr.ig2i.wifind.wifi.WifiScanner;
 
@@ -42,8 +44,9 @@ public class EmpreinteActivity extends Activity implements DataChangeListener, A
      */
     private WifiScanner scanner;
 
-    //private List<String> BSSID_OK = new ArrayList<>(Arrays.asList(new String[] { "ECLille", "ECLille-Captif", "eduroam" }));
-    private List<String> BSSID_OK = new ArrayList<>(Arrays.asList(new String[] { "Livebox-1260" }));
+    private List<String> BSSID_OK = new ArrayList<>(Arrays.asList(new String[] { "ECLille", "ECLille-Captif", "eduroam" }));
+    //private List<String> BSSID_OK = new ArrayList<>(Arrays.asList(new String[] { "Livebox-1260" }));
+    //private List<String> BSSID_OK = new ArrayList<>(Arrays.asList(new String[] { "orange" }));
 
     private DrawableImageView imageView;
 
@@ -132,9 +135,12 @@ public class EmpreinteActivity extends Activity implements DataChangeListener, A
         for(Iterator i = mesures.iterator(); i.hasNext();) {
             Mesure mesure = (Mesure)i.next();
             if(this.BSSID_OK.contains(mesure.getAp().getSSID())) {
+            //if(mesure.getAp().getSSID().startsWith("Livebox")) {
                 filtre.add(mesure);
                 if(this.measuring) {
+                    mesure.setPosition(new Position(this.imageView.getPinPosition().x, this.imageView.getPinPosition().y));
                     this.mesures.add(mesure);
+                    Log.w("MESURE", mesure.serialize());
                 }
             }
         }
@@ -144,6 +150,7 @@ public class EmpreinteActivity extends Activity implements DataChangeListener, A
 
             if(measureCount == 1) {
                 measuring = false;
+                new WiFindAPI(this).postScanResults(this.mesures);
                 Toast.makeText(this, "Mesure terminée.", Toast.LENGTH_SHORT).show();
             }
         }

@@ -1,11 +1,15 @@
 package fr.ig2i.wifind.objects;
 
 import android.net.wifi.WifiManager;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Thomas on 13/12/2015.
  */
-public class Mesure {
+public class Mesure extends JSONSerializable{
 
     /**
      * Point d'accès sur lequel est effectué la mesure
@@ -58,6 +62,19 @@ public class Mesure {
         this.ap = ap;
         this.rssi = rssi;
         this.position = position;
+    }
+
+    public String serialize() {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("ap", new JSONObject(ap.serialize()));
+            obj.put("rssi", rssi);
+            obj.put("position", new JSONObject(position.serialize()));
+        } catch(JSONException exc) {
+            Log.e("JsonError", "", exc);
+        }
+
+        return obj.toString();
     }
 
 }

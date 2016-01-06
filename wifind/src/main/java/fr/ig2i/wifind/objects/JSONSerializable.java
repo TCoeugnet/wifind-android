@@ -13,7 +13,11 @@ public class JSONSerializable {
     }
 
     public JSONSerializable(JSONObject obj) throws JSONException {
+        
+    }
 
+    public String serialize() {
+        return "{}";
     }
 
 }
